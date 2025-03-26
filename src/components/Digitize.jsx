@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 
-function Digitize() {
+function Digitize(ref, {onClick}) {
   const [clickInfo, setClickInfo] = useState({x: null, y: null, time: null});
   const [clickData, setClickData] = useState([]);
 

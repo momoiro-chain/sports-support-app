@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Digitize from './components/Digitize';
-//import './App.css'; // 必要に応じてスタイルファイルを変更してください
+import Digitize, {handleVideoClick} from './components/Digitize';
+//import './App.css';
 
-const VideoPlayer = () => {
+const App = () => {
   const videoRef = useRef(null);
 
   const [videoSrc, setVideoSrc] = useState(null);
@@ -113,6 +113,10 @@ const VideoPlayer = () => {
 
 
 // ----------<Digitize>--------------------------------------------------------------------------------
+// const handleVideoClick = () => {
+//   onClick(e,videoRef.current);
+
+// };
 // ----------<Delay>--------------------------------------------------------------------------------
 // ----------<Draw>--------------------------------------------------------------------------------
 // ----------<>--------------------------------------------------------------------------------
@@ -143,7 +147,7 @@ const VideoPlayer = () => {
 
       <div className="main-container">
         {/* 動画表示部分 - クリックイベントハンドラーを追加 */}
-        <div className="video-container" onClick={handleVideoContainerClick}>
+        <div className="video-container" onClick={handleVideoClick}>
           <video
             id="videoPlayer"
             ref={videoRef}
@@ -215,9 +219,9 @@ const VideoPlayer = () => {
       <div className="testArea">
         test.{currentFrame}/{totalFrames}
       </div>
-      <Digitize />
+      <Digitize videoRef={videoRef} onClick={handleVideoClick}/>
     </>
   );
 };
 
-export default VideoPlayer;
+export default App;
