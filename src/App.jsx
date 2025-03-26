@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Digitize, {handleVideoClick} from './components/Digitize';
-//import './App.css';
+import React, { useState, useRef } from 'react';
+import Digitize from './components/Digitize';
+import './App.css';
 
 const App = () => {
   const videoRef = useRef(null);
 
+  const [clickInfo, setClickInfo] = useState({ x: null, y: null, time: null });
   const [videoSrc, setVideoSrc] = useState(null);
   const [videoDuration, setVideoDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -14,11 +15,24 @@ const App = () => {
   const currentFrame = Math.floor(currentTime * frameRate);
   const totalFrames = Math.floor(videoDuration * frameRate);
 
-  // ビデオのクリックハンドラー
-  const handleVideoContainerClick = (e) => {
-    if (onClick && videoRef.current) {
-      onClick(e, videoRef.current); // ビデオ要素を第2引数として渡す
-    }
+  // // ビデオのクリックハンドラー
+  // const handleVideoContainerClick = (e) => {
+  //   if (onClick && videoRef.current) {
+  //     onClick(e, videoRef.current); // ビデオ要素を第2引数として渡す
+  //   }
+  // };
+
+  // データを取得。デジタイズ部分
+  const handleVideoClick = (e, videoElement) => {
+    if (!videoElement) return;
+    const rect = videoElement.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const scaleX = videoElement.videoWidth / rect.width;
+    const scaleY = videoElement.videoHeight / rect.height;
+    const actualX = Math.round(x * scaleX);
+    const actualY = Math.round(videoElement.videoHeight - y * scaleY);
+    setClickInfo({ x: actualX, y: actualY, time: videoElement.currentTime });
   };
 
   // ファイル選択時の処理
@@ -71,7 +85,7 @@ const App = () => {
           setIsPlaying(false);
         }
       } catch (error) {
-        console.error("Play/Pause切り替え中のエラー", error);
+        console.error('Play/Pause切り替え中のエラー', error);
         setIsPlaying(false);
       }
     }
@@ -111,35 +125,20 @@ const App = () => {
     setFrameRate(Number(e.target.value));
   };
 
+  // ----------<Digitize>--------------------------------------------------------------------------------
+  // const handleVideoClick = () => {
+  //   onClick(e,videoRef.current);
 
-// ----------<Digitize>--------------------------------------------------------------------------------
-// const handleVideoClick = () => {
-//   onClick(e,videoRef.current);
-
-// };
-// ----------<Delay>--------------------------------------------------------------------------------
-// ----------<Draw>--------------------------------------------------------------------------------
-// ----------<>--------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
+  // };
+  // ----------<Delay>--------------------------------------------------------------------------------
+  // ----------<Draw>--------------------------------------------------------------------------------
+  // ----------<>--------------------------------------------------------------------------------
 
   return (
     <>
       {/* 動画ファイル選択 */}
       <div className="file-input-container">
-        <input 
-          type="file"
-          id="videoInput"
-          accept="video/*"
-          className="file-input"
-          onChange={handleFileChange}
-        />
+        <input type="file" id="videoInput" accept="video/*" className="file-input" onChange={handleFileChange} />
         <label className="file-input-label" htmlFor="videoInput">
           動画を開く
         </label>
@@ -160,12 +159,8 @@ const App = () => {
 
         {/* コントロールパネル */}
         <div className="video-controls">
-          <button
-            id="playPauseButton"
-            className="control-button"
-            onClick={handlePlayPause}
-          >
-            {isPlaying ? "Pause" : "Play"}
+          <button id="playPauseButton" className="control-button" onClick={handlePlayPause}>
+            {isPlaying ? 'Pause' : 'Play'}
           </button>
           <input
             type="range"
@@ -174,18 +169,13 @@ const App = () => {
             value={videoDuration ? (currentTime / videoDuration) * 100 : 0}
             onChange={handleSeekChange}
           />
-          <span id="currentTime">{formatTime(currentTime)}</span> /{" "}
+          <span id="currentTime">{formatTime(currentTime)}</span> /{' '}
           <span id="duration">{formatTime(videoDuration)}</span>
         </div>
 
         {/* フレーム操作部分 */}
         <div className="frame-controls">
-          <button
-            id="prevFrame"
-            className="frame-button"
-            onClick={handlePrevFrame}
-            disabled={currentFrame <= 0}
-          >
+          <button id="prevFrame" className="frame-button" onClick={handlePrevFrame} disabled={currentFrame <= 0}>
             ◀前フレーム
           </button>
           <div className="frame-info">
@@ -204,14 +194,7 @@ const App = () => {
           </button>
           <div className="frame-rate-control">
             <label htmlFor="frameRate">Frame Rate(fps):</label>
-            <input
-              type="number"
-              id="frameRate"
-              value={frameRate}
-              min="1"
-              max="120"
-              onChange={handleFrameRateChange}
-            />
+            <input type="number" id="frameRate" value={frameRate} min="1" max="120" onChange={handleFrameRateChange} />
           </div>
         </div>
       </div>
@@ -219,7 +202,7 @@ const App = () => {
       <div className="testArea">
         test.{currentFrame}/{totalFrames}
       </div>
-      <Digitize videoRef={videoRef} onClick={handleVideoClick}/>
+      <Digitize clickInfo={clickInfo} />
     </>
   );
 };
